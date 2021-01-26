@@ -1,0 +1,30 @@
+version: '3.4'
+services:
+
+  kafka:
+    image: wurstmeister/kafka:2.11-0.11.0.3
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092
+      KAFKA_LISTENERS: INSIDE://:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    ports:
+      - '9092:9092'
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: zookeeper:3.4
+    ports:
+      - '2181:2181'
+
+  node-notifications:
+    image: ${DOCKER_REGISTRY}:development
+    environment:
+      KAFKA_BROKER_LIST: "PLAINTEXT://kafka:9092"
+      KAFKA_TOPIC: 'test2'
+    depends_on:
+      - kafka
